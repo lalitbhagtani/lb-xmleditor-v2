@@ -1,1 +1,1 @@
-# lb-xmleditor-v2
+# XML Editor V2
