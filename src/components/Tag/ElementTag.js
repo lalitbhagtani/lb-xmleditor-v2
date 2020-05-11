@@ -38,6 +38,7 @@ const ElementTag = props => {
       cdataChecked={props.cdataChecked}
       cdataMenuItem={props.cdataMenuItem}
       copyElement={props.copyElement}
+      cdata={props.self.cdata}
     />
   );
   if (props.self.type === Type.Element) {

@@ -1,17 +1,17 @@
 import React, { Component } from "react";
 import Styled from "styled-components";
-import ToolContainer from "../../components/ToolContainer/ToolContainer";
-import ElementTag from "../../components/Tag/ElementTag";
-import Attribute from "../../components/AttributesSection/AttributesSection";
-import LoadingBackdrop from "../../components/Backdrop/LoadingBackdrop";
+import ToolContainer from "../components/ToolContainer/ToolContainer";
+import ElementTag from "../components/Tag/ElementTag";
+import { AttributesSection, HelpSection, LoadXMLSection } from '../components/PopupSection/index';
+import LoadingBackdrop from "../components/Backdrop/LoadingBackdrop";
 import {
   Type,
   Default,
   Data,
   NewXML,
   DragDropData,
-} from "../../constants/Constants";
-import Popup from "../../components/Popup/Popup";
+} from "../constants/Constants";
+import Popup from "../components/Popup/Popup";
 import cloneDeep from "lodash.clonedeep";
 import {
   convertToXML,
@@ -21,10 +21,10 @@ import {
   deleteElementShallow,
   convertToIndentXMLForDownload,
   convertToXMLForDownload,
-} from "../../util/Util";
-import Help from "../../components/Help/Help";
-import HelpContext from "../../context/HelpContext";
-import { saveToCloud } from "../../service/ToolService";
+  loadXML
+} from "../util/Util";
+import { saveToCloud } from "../service/ToolService";
+import { connect } from 'react-redux';
 
 const fileDownload = require("js-file-download");
 
@@ -34,6 +34,7 @@ class Tool extends Component {
     this.state = {
       open: false,
       openAttribute: false,
+      openLoad: false,
       attributeValue: {},
       XML: Default.XML,
       TreeView: null,
@@ -47,6 +48,15 @@ class Tool extends Component {
   textArea = React.createRef();
   static isCopied = false;
   static copiedElement = null;
+
+  componentDidUpdate(preProps, preState){
+    if(preProps.xmlData !== this.props.xmlData && this.props.xmlData !== ""){
+      this.loadXMLHandler(this.props.xmlData)
+    }
+    if(preProps.loading !== this.props.loading){
+      this.setState({ loading: this.props.loading });
+    }
+  }
 
   componentDidMount() {
     this.updateState(this.state.XML);
@@ -267,22 +277,29 @@ class Tool extends Component {
     this.setState({ open: false });
   };
 
-  loadXMLHandler = (xmlText) => {
-    const parent = {};
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-    if (xmlDoc !== null && xmlDoc.firstChild !== null) {
-      parent[xmlDoc.firstChild.nodeName] = {
-        type: Type.Element,
-        expand: true,
-        elements: [],
-      };
+  openLoadPopupHandler = () => {
+    this.setState({ openLoad: true});
+  };
+
+  closeLoadPopupHandler = () => {
+    this.setState({ openLoad: false });
+  };
+
+  loadXMLHandler = (xmlString) => {
+    if(xmlString === undefined || xmlString === null || xmlString === ""){
+      alert("Please Copy and Paste XML in the text area")
+      return
+    } 
+    const xml = loadXML(xmlString)
+    if(xml !== undefined && xml !== null){
+      this.updateState(xml);
+      this.setState({ openLoad: false });
     } else {
-      // alert(errorParsingXml);
+      alert("XML is not valid");
     }
   };
 
-  /*downloadXMLHandler = () => {
+  downloadXMLHandler = () => {
     let text = null;
     if (this.state.indent) {
       text = convertToIndentXMLForDownload(this.state.XML, [], "");
@@ -290,12 +307,12 @@ class Tool extends Component {
       text = convertToXMLForDownload(this.state.XML, []);
     }
     fileDownload(text.join(""), Data.FileName);
-  };*/
+  };
 
-  downloadXMLHandler = () => {
+  saveToCloudHandler = () => {
     this.openLoadingHandler();
-    const text = convertToXMLForDownload(this.state.XML, []);
-    saveToCloud(text);
+    const text = convertToXMLForDownload(this.state.XML, []).join('');
+    saveToCloud(text, this.closeLoadingHandler);
   };
 
   closeLoadingHandler = () => {
@@ -306,10 +323,15 @@ class Tool extends Component {
     this.setState({ loading: true });
   };
 
+  closeHelpPopupHandler = () => {
+    this.props.sendAction("CLOSE_HELP")
+  };
+
   newXMLHandler = () => {
     this.updateState(NewXML);
   };
 
+  /*
   copyXMLHandler = () => {
     let text = null;
     if (this.state.indent) {
@@ -322,6 +344,7 @@ class Tool extends Component {
     document.execCommand("copy");
     this.setState({ copySuccess: true });
   };
+  */
 
   updateState = (state) => {
     const TreeView = this.prepareTreeView(state, state);
@@ -346,11 +369,11 @@ class Tool extends Component {
         </ToolContainer>
         <ToolContainer
           gridClassName="TextView"
+          saveOnline={this.saveToCloudHandler}
           downloadXML={this.downloadXMLHandler}
-          copyXML={this.copyXMLHandler}
           textIndex={this.textIndentHandler}
           textPlain={this.textPlainHandler}
-          loadXML={this.loadXMLHandler}
+          loadXML={this.openLoadPopupHandler}
           openTextViewPopup={this.openPopupHandler.bind(this, Data.TextView)}
         >
           {this.state.TextView}
@@ -360,6 +383,13 @@ class Tool extends Component {
             ? this.state.TextView
             : this.state.TreeView}
         </Popup>
+        <Popup 
+          width="80%"
+          height="620px"
+          scroll="auto" 
+          open={this.state.openLoad} closePopup={this.closeLoadPopupHandler}>
+          <LoadXMLSection closePopup={this.closeLoadPopupHandler} loadXml={this.loadXMLHandler} />
+        </Popup>
         <Popup
           width="35%"
           height="80%"
@@ -367,20 +397,15 @@ class Tool extends Component {
           open={this.state.openAttribute}
           closePopup={this.closeAttributePopupHandler}
         >
-          <Attribute
+          <AttributesSection
             value={this.state.attributeValue}
             onDeleteAttributeHandler={this.onDeleteAttributeHandler}
             onAttributeValueChangeHandler={this.onAttributeValueChangeHandler}
           />
         </Popup>
-        <textarea type="text" ref={this.textArea} value="" />
-        <HelpContext.Consumer>
-          {(value) => (
-            <Popup open={value} closePopup={this.props.closeHelpPopup}>
-              <Help />
-            </Popup>
-          )}
-        </HelpContext.Consumer>
+        <Popup open={this.props.help} closePopup={this.closeHelpPopupHandler}>
+          <HelpSection />
+        </Popup>
         <LoadingBackdrop
           open={this.state.loading}
           close={this.closeLoadingHandler}
@@ -391,6 +416,8 @@ class Tool extends Component {
 }
 
 const ToolWrapper = Styled(Tool)`
+  width: 100%;
+  height: calc(100% - 42px);
   flex-grow: 1;
   display: flex;
   flex-direction: row;
@@ -398,15 +425,25 @@ const ToolWrapper = Styled(Tool)`
   align-items: stretch;
   margin: 10px 0px 10px 0px;
   .TreeView{
-    width: 49%;
+    width: 49.2%;
+    height: calc(100% - 42px);
     margin-right: 5px;
     margin-left: 8px;
   }
   .TextView{
-    width: 49%;
+    width: 49.2%;
+    height: calc(100% - 42px);
     margin-right: 8px;
     margin-left: 5px;
   }  
 `;
 
-export default ToolWrapper;
+const mapStateToProps = state => ({
+  help: state.help
+})
+
+const mapDispatchToProps = dispatch => ({
+  sendAction: (type, data) => dispatch({ type: type, data: data })
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(ToolWrapper)

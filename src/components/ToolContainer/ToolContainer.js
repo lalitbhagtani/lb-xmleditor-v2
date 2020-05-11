@@ -1,14 +1,12 @@
 import React from "react";
 import Styled from "styled-components";
-import { Card } from "@material-ui/core";
 import TextViewIconBar from "../../components/IconBar/TextViewIconBar";
 
 const ToolContainer = props => {
-  const containerClassName = [props.gridClassName, props.className].join(" ");
   return (
-    <div className={containerClassName}>
-      <Card className="header">
-        <TextViewIconBar
+    <div className={`${props.gridClassName} ${props.className}`}>
+      <TextViewIconBar
+          saveOnline={props.saveOnline}
           textIndex={props.textIndex}
           textPlain={props.textPlain}
           loadXML={props.loadXML}
@@ -19,24 +17,25 @@ const ToolContainer = props => {
           openTextViewPopup={props.openTextViewPopup}
         />
         <div className="textViewContainer">
-          <div className="viewContainer">{props.children}</div>
+          {props.children}
         </div>
-      </Card>
     </div>
   );
 };
 
 const ToolContainerWrapper = Styled(ToolContainer)`
-  .header{    
-    width: 100%;
-    background-color: #fcfcfc;
-  }  
+  display: block;
+  color: rgba(0, 0, 0, 0.87);
+  background-color: #fcfcfc;
+  box-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12);
+  border-radius: 4px;
   .textViewContainer{
     width: 100%;
-    height: 520px;    
-    overflow: scroll;    
+    height: calc(100% - 62px);
+    overflow: auto;    
     font-weight: 500;
     font-size: 14px;
+    padding-bottom: 10px;
   }
   .textViewPlain{
     margin: 10px;

@@ -6,7 +6,7 @@ const Menus = ({ click, className, menusData }) => {
     <div className={className}>
       {menusData.map((item, index) => (
         <span key={index} className="menus">
-          <Button size="small" onClick={() => click[item]()} color="inherit">
+          <Button size="medium" onClick={() => click[item]()} color="inherit">
             {item}
           </Button>
         </span>

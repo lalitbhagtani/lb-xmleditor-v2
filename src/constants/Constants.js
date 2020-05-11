@@ -5,6 +5,10 @@ export const DragDropData = {
   value: {}
 };
 
+export const Routes = {
+  BASE_URL : "/"
+}
+
 export const Data = {
   HeaderText: "XML Editor",
   HeaderSubText: "© CodeDestine.com",
@@ -18,7 +22,7 @@ export const Type = {
   Text: "Text"
 };
 
-export const MenusData = ["Json Editor", "Save Online", "Help"];
+export const MenusData = ["Json Editor", "Help"];
 
 export const Default = {
   ElementName: "New_Element",
@@ -79,146 +83,6 @@ export const Default = {
               height: 1
             },
             elements: [
-              {
-                "Don't forget me this weekend!": {
-                  type: Type.Text,
-                  expand: true,
-                  cdata: false
-                }
-              },
-              {
-                "Don't forget me this weekend!": {
-                  type: Type.Text,
-                  expand: true,
-                  cdata: false
-                }
-              },
-              {
-                "Don't forget me this weekend!": {
-                  type: Type.Text,
-                  expand: true,
-                  cdata: false
-                }
-              },
-              {
-                "Don't forget me this weekend!": {
-                  type: Type.Text,
-                  expand: true,
-                  cdata: false
-                }
-              },
-              {
-                "Don't forget me this weekend!": {
-                  type: Type.Text,
-                  expand: true,
-                  cdata: false
-                }
-              },
-              {
-                "Don't forget me this weekend!": {
-                  type: Type.Text,
-                  expand: true,
-                  cdata: false
-                }
-              },
-              {
-                "Don't forget me this weekend!": {
-                  type: Type.Text,
-                  expand: true,
-                  cdata: false
-                }
-              },
-              {
-                "Don't forget me this weekend!": {
-                  type: Type.Text,
-                  expand: true,
-                  cdata: false
-                }
-              },
-              {
-                "Don't forget me this weekend!": {
-                  type: Type.Text,
-                  expand: true,
-                  cdata: false
-                }
-              },
-              {
-                "Don't forget me this weekend!": {
-                  type: Type.Text,
-                  expand: true,
-                  cdata: false
-                }
-              },
-              {
-                "Don't forget me this weekend!": {
-                  type: Type.Text,
-                  expand: true,
-                  cdata: false
-                }
-              },
-              {
-                "Don't forget me this weekend!": {
-                  type: Type.Text,
-                  expand: true,
-                  cdata: false
-                }
-              },
-              {
-                "Don't forget me this we": {
-                  type: Type.Text,
-                  expand: true,
-                  cdata: false
-                }
-              },
-              {
-                "Don't forget me this weekend!": {
-                  type: Type.Text,
-                  expand: true,
-                  cdata: false
-                }
-              },
-              {
-                "Don't forget me this weekend!": {
-                  type: Type.Text,
-                  expand: true,
-                  cdata: false
-                }
-              },
-              {
-                "Don't forget me this weekend!": {
-                  type: Type.Text,
-                  expand: true,
-                  cdata: false
-                }
-              },
-              {
-                "Don't forget me this weekend!": {
-                  type: Type.Text,
-                  expand: true,
-                  cdata: false
-                }
-              },
-              {
-                "Don't forget me this weekend!": {
-                  type: Type.Text,
-                  expand: true,
-                  cdata: false
-                }
-              },
-              {
-                "Don't forget me this weekend!": {
-                  type: Type.Text,
-                  expand: true,
-                  cdata: false
-                }
-              },
-              {
-                "Don't forget me this weekend!": {
-                  type: Type.Text,
-                  expand: true,
-                  cdata: false
-                }
-              },
               {
                 "Don't forget me this weekend!": {
                   type: Type.Text,

@@ -21,7 +21,7 @@ const TextTagContextMenu = props => {
           className="checkbox"
           type="checkbox"
           onChange={props.cdataChecked}
-          defaultChecked={false}
+          checked={props.cdata}
         />
         <span className="checkboxlabel">CDATA</span>
       </MenuItem>

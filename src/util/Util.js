@@ -1,4 +1,5 @@
 import React from "react";
+import parser from 'fast-xml-parser';
 import { Type, Default } from "../constants/Constants";
 
 const getAttributesString = attributes => {
@@ -6,7 +7,9 @@ const getAttributesString = attributes => {
     const attr = Object.entries(attributes).map(([key, value]) => {
       return key + '="' + value + '"';
     });
-    return " " + attr.join(" ");
+    if(attr.length > 0){
+      return " " + attr.join(" ");
+    }
   }
   return "";
 };
@@ -19,7 +22,7 @@ export const convertToXML = (data, xml) => {
       xml.push("</" + key + ">");
     } else {
       if (value.cdata) {
-        xml.push("![CDATA[" + key + "]]");
+        xml.push("<![CDATA[" + key + "]]>");
       } else {
         xml.push(key);
       }
@@ -39,7 +42,7 @@ export const convertToIndentXML = (data, index) => {
       xml.push("</" + key + ">");
     } else {
       if (value.cdata) {
-        xml.push("![CDATA[" + key + "]]");
+        xml.push("<![CDATA[" + key + "]]>");
       } else {
         xml.push(key);
       }
@@ -64,7 +67,7 @@ export const convertToIndentXMLForDownload = (data, xml, indent) => {
       xml.push(indent + "</" + key + ">\n");
     } else {
       if (value.cdata) {
-        xml.push(indent + "![CDATA[" + key + "]]");
+        xml.push(indent + "<![CDATA[" + key + "]]>");
       } else {
         xml.push(indent + key);
       }
@@ -83,7 +86,7 @@ export const convertToXMLForDownload = (data, xml) => {
       xml.push("</" + key + ">");
     } else {
       if (value.cdata) {
-        xml.push("![CDATA[" + key + "]]");
+        xml.push("<![CDATA[" + key + "]]>");
       } else {
         xml.push(key);
       }
@@ -167,81 +170,68 @@ export const deleteElementShallow = (parent, key, value) => {
     }
   }
 };
-/*
 
+export const loadXML = (xmlString) => {
+  if(parser.validate(xmlString) !== true) {
+    return null
+  }
+  const parent = {};
+  const domParser = new DOMParser();
+  const xmlDoc = domParser.parseFromString(xmlString, "text/xml");
+  if (xmlDoc !== null && xmlDoc.firstChild !== null) {
+    const attri = getAttributes(xmlDoc.firstChild.attributes)
+    const name = xmlDoc.firstChild.nodeName;
+    parent[name] = {
+      type: Type.Element,
+      expand: true,
+      attributes: attri,
+      elements: [],
+    }
+    traverseXMLElements(xmlDoc.firstChild.childNodes, parent[name].elements)
+    return parent
+  } else {
+    return null
+  }
+}
 
-const getElement = (node, element) => {
-  if (node !== null) {
-    const attribute = {};
-    if (node.attributes !== undefined && node.attributes !== null) {
-      for (let item in node.attributes) {
-        if (node.attributes[item] !== null) {
-          attribute[node.attributes[item].nodeName] =
-            node.attributes[item].nodeValue;
+const traverseXMLElements = (nodeList, parent) => {
+  for(let node = 0; node < nodeList.length; node++){
+    const element = nodeList[node]
+    if(element.nodeName === '#text' || element.nodeName === '#cdata-section'){
+      if(element.nodeValue.trim().length > 0){
+        const cdata = element.nodeName === '#cdata-section'
+        const obj = {
+          [element.nodeValue]: {
+            type: Type.Text,
+            expand: true,
+            cdata
+          }
+        }
+        parent.push(obj)
+      }
+    }else {
+      const attri = getAttributes(element.attributes)
+      const obj = {
+        [element.nodeName]: {
+          type: Type.Element,
+          expand: true,
+          attributes: attri,
+          elements: [],
         }
       }
-    }
-    if (node.childNodes !== null) {
-      var isTraverse = false;
-      for (var i = 0; i < node.childNodes.length; i++) {
-        isTraverse = false;
-        if (node.childNodes[i] !== null) {
-          var childElement = null;
-          if (node.childNodes[i].nodeName === "#text") {
-            if (node.childNodes[i].nodeValue.trim() !== "") {
-              node.childNodes[i].nodeValue = node.childNodes[
-                i
-              ].nodeValue.trim();
-              childElement = new XMLElement(
-                "",
-                "",
-                "",
-                "",
-                textType,
-                node.childNodes[i].nodeValue
-              );
-            }
-          } else if (node.childNodes[i].nodeName === "#cdata-section") {
-            if (node.childNodes[i].nodeValue.trim() !== "") {
-              /*childElement = new XMLElement(
-                "",
-                "",
-                "",
-                "",
-                cdataType,
-                node.childNodes[i].nodeValue
-              );
-            }
-          } else {
-           /* childElement = new XMLElement(
-              node.childNodes[i].nodeName,
-              "",
-              "",
-              "",
-              elementType,
-              ""
-            );
-            isTraverse = true;
-          }
-          if (childElement !== null) {
-            var data = createElementDiv(childElement);
-            document.getElementById(element.tableId).appendChild(data.element);
-            document.getElementById(element.tableId).appendChild(data.table);
-            document.getElementById(element.imageId).style.visibility =
-              "visible";
-            jQuery.data(
-              data.elementDiv,
-              attachedXMLObjectKey,
-              node.childNodes[i]
-            );
-            element.childs.push(childElement);
-          }
-          if (isTraverse) {
-            getElement(node.childNodes[i], childElement);
-          }
-        }
+      parent.push(obj)
+      if(element.childNodes.length > 0){
+        traverseXMLElements(element.childNodes, obj[element.nodeName].elements)
       }
     }
   }
-};
-*/
+}
+
+const getAttributes = (attributes) => {
+  const attri = {}
+  Object.values(attributes).map((value) => {
+    attri[value.nodeName] = value.nodeValue
+    return value
+  })
+  return attri
+}
