@@ -1,9 +1,9 @@
 import firebase from 'firebase'
 
 firebase.initializeApp({
-    apiKey: "AIzaSyAJldbrBHFg9q1Z2ZI-cnTJmLD8fn9db6E",
-    authDomain: "web-xmleditor.firebaseapp.com",
-    projectId: "web-xmleditor",
-  });
+    apiKey: "API_KEY",
+    authDomain: "AUTH_DOMAIN",
+    projectId: "Project",
+});
   
-  export default firebase.firestore()
+export default firebase.firestore()
