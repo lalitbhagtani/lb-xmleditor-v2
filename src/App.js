@@ -10,7 +10,7 @@ const App = () => {
     <Provider store={store}>
       <BrowserRouter>
       <Switch>
-            <Route path="/xml-editor" exact component={Home} />
+            <Route path="/" exact component={Home} />
           </Switch>
       </BrowserRouter>
   </Provider>
